@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
-import BookingForm from './BookingForm';
-export default async function Home() {
+import BookingForm from '../BookingForm';
   const { data: doctors, error } = await supabase
     .from("doctors")
     .select("*")
