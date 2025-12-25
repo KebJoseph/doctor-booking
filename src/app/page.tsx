@@ -1,5 +1,7 @@
 import { supabase } from '../lib/supabase';
-import BookingForm from '../BookingForm';
+import BookingForm from '/BookingForm.tsx';
+
+export default async function Home() {
   const { data: doctors, error } = await supabase
     .from("doctors")
     .select("*")
@@ -16,12 +18,9 @@ import BookingForm from '../BookingForm';
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {doctors?.map((doctor: any) => (
           <div key={doctor.id} className="p-6 border rounded-xl shadow-sm bg-white">
-            <h2 className="text-xl font-bold text-gray-800">{doctor.name}</h2>
-            <p className="text-blue-600 font-medium mb-4">{doctor.specialty || "General Practitioner"}</p>
-            
-            <hr className="my-4" />
-            
-            <p className="text-sm font-bold text-gray-400 uppercase mb-2">Instant Booking</p>
+            <h2 className="text-xl font-bold text-gray-800">{doctor.full_name}</h2>
+            <p className="text-gray-600 mb-4">{doctor.specialty}</p>
+            <p className="text-sm font-bold text-gray-400 uppercase mb-2">Instant Booking:</p>
             <BookingForm doctorId={doctor.id} />
           </div>
         ))}
