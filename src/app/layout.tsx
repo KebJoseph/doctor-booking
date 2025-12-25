@@ -18,9 +18,7 @@ export default function RootLayout({
             <a href="/" className="text-blue-600 font-medium hover:text-blue-800">
               🏠 Home (Doctors)
             </a>
-            <a href="/appointments" className="text-blue-600 font-medium hover:text-blue-800">
-              🗓 View Appointments
-            </a>
+            {/* The View Appointments link has been removed to protect patient privacy */}
           </div>
           <div className="text-sm text-gray-500 font-medium">
             Admin Portal
