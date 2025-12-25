@@ -1,72 +1,71 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 
+// This defines the "shape" of your data to stop the red lines
+interface Appointment {
+  id: string;
+  full_name: string;
+  email: string;
+  appointment_time: string;
+  status: string;
+}
+
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuthAndFetch = async () => {
-      // 1. The Gatekeeper: Check if you are logged in
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        // If not logged in, redirect to the login page
-        router.push('/login');
-        return;
-      }
-
-      // 2. Fetch data: Only runs if the user check above passed
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching appointments:', error);
-      } else {
-        setAppointments(data || []);
-      }
-      setLoading(false);
-    };
-
     checkAuthAndFetch();
-  }, [router]);
+  }, []);
 
-  // Show a loading screen while checking credentials
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-50 text-gray-500 font-medium">
-        Verifying Admin Access...
-      </div>
-    );
-  }
+  const checkAuthAndFetch = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .select('*')
+      .eq('status', 'active'); // Only show current appointments
+
+    if (!error && data) {
+      setAppointments(data);
+    }
+    setLoading(false);
+  };
+
+  const handleComplete = async (id: string) => {
+    const { error } = await supabase
+      .from('appointments')
+      .update({ status: 'completed' })
+      .eq('id', id);
+
+    if (!error) {
+      // Remove from the list immediately on screen
+      setAppointments(prev => prev.filter(apt => apt.id !== id));
+    }
+  };
+
+  if (loading) return <div className="p-10 text-center">Loading...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto min-h-screen bg-gray-50">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-        <button 
-          onClick={async () => { 
-            await supabase.auth.signOut(); 
-            router.push('/login'); 
-          }}
-          className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="p-10 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-8 text-blue-900">Scheduled Appointments</h1>
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="p-4 font-semibold text-gray-700">Patient Name</th>
-              <th className="p-4 font-semibold text-gray-700">Email Address</th>
-              <th className="p-4 font-semibold text-gray-700">Appointment Date</th>
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="p-4 font-semibold text-gray-700">Patient</th>
+              <th className="p-4 font-semibold text-gray-700">Email</th>
+              <th className="p-4 font-semibold text-gray-700">Date & Time</th>
+              <th className="p-4 font-semibold text-gray-700">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -75,14 +74,22 @@ export default function AppointmentsPage() {
                 <tr key={apt.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
                   <td className="p-4 font-medium text-gray-800">{apt.full_name}</td>
                   <td className="p-4 text-gray-600">{apt.email}</td>
-                  <td className="p-4 text-gray-600">{new Date(apt.appointment_time).toLocaleString()}</td>
+                  <td className="p-4 text-gray-600">
+                    {new Date(apt.appointment_time).toLocaleString()}
+                  </td>
+                  <td className="p-4">
+                    <button 
+                      onClick={() => handleComplete(apt.id)}
+                      className="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-medium hover:bg-green-200 transition"
+                    >
+                      Done
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="p-10 text-center text-gray-400">
-                  No appointments found.
-                </td>
+                <td colSpan={4} className="p-10 text-center text-gray-400">No active appointments found.</td>
               </tr>
             )}
           </tbody>
