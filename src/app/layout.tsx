@@ -1,4 +1,4 @@
-'use client'; // This MUST be the first line to fix the error
+'use client';
 
 import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/navigation';
