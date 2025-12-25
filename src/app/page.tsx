@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import BookingForm from '/BookingForm.tsx';
+import BookingForm from './BookingForm';
 
 export default async function Home() {
   const { data: doctors, error } = await supabase
@@ -13,15 +13,17 @@ export default async function Home() {
 
   return (
     <div className="p-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-blue-900">Available Doctors</h1>
+      <h1 className="text-3xl font-bold mb-8 text-blue-900 text-center">Available Doctors</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {doctors?.map((doctor: any) => (
-          <div key={doctor.id} className="p-6 border rounded-xl shadow-sm bg-white">
+          <div key={doctor.id} className="p-6 border rounded-xl shadow-md bg-white">
             <h2 className="text-xl font-bold text-gray-800">{doctor.full_name}</h2>
             <p className="text-gray-600 mb-4">{doctor.specialty}</p>
-            <p className="text-sm font-bold text-gray-400 uppercase mb-2">Instant Booking:</p>
-            <BookingForm doctorId={doctor.id} />
+            <div className="border-t pt-4">
+               <p className="text-xs font-bold text-gray-400 uppercase mb-2">Book an Appointment:</p>
+               <BookingForm doctorId={doctor.id} />
+            </div>
           </div>
         ))}
       </div>
