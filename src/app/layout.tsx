@@ -1,9 +1,14 @@
-'use client';
+'use client'; // This MUST be the first line to fix the error
+
 import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/navigation';
 import "./globals.css";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -16,8 +21,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-gray-50 min-h-screen">
         <nav className="bg-white border-b p-4 flex justify-between items-center shadow-sm">
           <div className="flex gap-6">
-            <a href="/" className="text-blue-600 font-medium hover:underline">🏠 Home</a>
-            <a href="/appointments" className="text-blue-600 font-medium hover:underline">🗓 Dashboard</a>
+            <button 
+              onClick={() => router.push('/')} 
+              className="text-blue-600 font-medium hover:underline"
+            >
+              🏠 Home
+            </button>
+            <button 
+              onClick={() => router.push('/appointments')} 
+              className="text-blue-600 font-medium hover:underline"
+            >
+              🗓 Dashboard
+            </button>
           </div>
           <button 
             onClick={handleLogout}
