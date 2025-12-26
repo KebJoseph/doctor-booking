@@ -1,32 +1,46 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import BookingForm from './BookingForm';
 
-export default async function Home() {
-  const { data: doctors, error } = await supabase
-    .from("doctors")
-    .select("*")
-    .eq("verified", true);
+export default function Home() {
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (error) {
-    return <div className="p-10 text-red-600">Error loading doctors: {error.message}</div>;
-  }
+  useEffect(() => {
+    async function fetchDoctors() {
+      const { data } = await supabase
+        .from('doctors')
+        .select('*');
+      
+      if (data) setDoctors(data);
+      setLoading(false);
+    }
+    fetchDoctors();
+  }, []);
+
+  if (loading) return <div className="p-10 text-center text-white">Loading Doctors...</div>;
 
   return (
-    <div className="p-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-blue-900 text-center">Available Doctors</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {doctors?.map((doctor: any) => (
-          <div key={doctor.id} className="p-6 border rounded-xl shadow-md bg-white">
-            <h2 className="text-xl font-bold text-gray-800">{doctor.full_name}</h2>
-            <p className="text-gray-600 mb-4">{doctor.specialty}</p>
-            <div className="border-t pt-4">
-               <p className="text-xs font-bold text-gray-400 uppercase mb-2">Book an Appointment:</p>
-               <BookingForm doctorId={doctor.id} />
+    <main className="min-h-screen bg-gray-900 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center text-white mb-12">Available Doctors</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {doctors.map((doctor) => (
+            <div key={doctor.id} className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">{doctor.name}</h2>
+              <p className="text-blue-600 font-semibold mb-4">{doctor.specialty}</p>
+              
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs font-bold text-gray-400 uppercase mb-2">Book an Appointment</p>
+                <BookingForm doctorId={doctor.id} />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
