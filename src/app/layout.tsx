@@ -19,14 +19,24 @@ export default function RootLayout({
               🏠 Home (Doctors)
             </a>
           </div>
-          
-          <div className="flex items-center gap-6">
+         <div className="flex items-center gap-6">
+            {/* WhatsApp Button */}
+            <a 
+              href="https://wa.me/254757148814" 
+              target="_blank" 
+              className="text-sm font-bold text-green-600 hover:text-green-700 flex items-center gap-1"
+            >
+              💬 WhatsApp
+            </a>
+
+            {/* Emergency Call */}
             <a 
               href="tel:0757148814" 
               className="text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1"
             >
-              📞 Emergency: 0757148814
+              📞 Call: 0757148814
             </a>
+            
             <div className="text-sm text-gray-400 italic">
               Admin Portal
             </div>
