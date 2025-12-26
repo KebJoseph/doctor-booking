@@ -10,7 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchDoctors() {
-      // We removed .eq("verified", true) because the column might not exist
+      // Fetching all doctors from your database
       const { data, error } = await supabase
         .from('doctors')
         .select('*');
@@ -19,7 +19,9 @@ export default function Home() {
         console.error("Supabase Error:", error.message);
       }
       
-      if (data) setDoctors(data);
+      if (data) {
+        setDoctors(data);
+      }
       setLoading(false);
     }
     fetchDoctors();
@@ -36,6 +38,7 @@ export default function Home() {
           {doctors.length > 0 ? (
             doctors.map((doctor) => (
               <div key={doctor.id} className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
+                {/* We use doctor.name to match your Supabase table */}
                 <h2 className="text-2xl font-bold text-gray-800 mb-1">{doctor.name}</h2>
                 <p className="text-blue-600 font-semibold mb-4">{doctor.specialty}</p>
                 
