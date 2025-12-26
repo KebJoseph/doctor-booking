@@ -32,3 +32,8 @@ export default function RootLayout({
             </div>
           </div>
         </nav>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
