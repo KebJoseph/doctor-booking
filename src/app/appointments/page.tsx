@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 
-// This defines the "shape" of your data to stop the red lines
 interface Appointment {
   id: string;
   full_name: string;
@@ -18,12 +17,9 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    checkAuthAndFetch();
-  }, []);
-
   const checkAuthAndFetch = async () => {
     const { data: { user } } = await supabase.auth.getUser();
+    
     if (!user) {
       router.push('/login');
       return;
@@ -32,7 +28,8 @@ export default function AppointmentsPage() {
     const { data, error } = await supabase
       .from('appointments')
       .select('*')
-      .eq('status', 'active'); // Only show current appointments
+      .eq('status', 'active')
+      .eq('doctor_id', user.id);
 
     if (!error && data) {
       setAppointments(data);
@@ -40,14 +37,21 @@ export default function AppointmentsPage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    checkAuthAndFetch();
+  }, []);
+
   const handleComplete = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     const { error } = await supabase
       .from('appointments')
       .update({ status: 'completed' })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('doctor_id', user.id);
 
     if (!error) {
-      // Remove from the list immediately on screen
       setAppointments(prev => prev.filter(apt => apt.id !== id));
     }
   };
@@ -56,8 +60,7 @@ export default function AppointmentsPage() {
 
   return (
     <div className="p-10 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-blue-900">Scheduled Appointments</h1>
-      
+      <h1 className="text-3xl font-bold mb-8 text-blue-900">Your Scheduled Appointments</h1>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50 border-b border-gray-200">
@@ -78,7 +81,7 @@ export default function AppointmentsPage() {
                     {new Date(apt.appointment_time).toLocaleString()}
                   </td>
                   <td className="p-4">
-                    <button 
+                    <button
                       onClick={() => handleComplete(apt.id)}
                       className="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-medium hover:bg-green-200 transition"
                     >
@@ -89,7 +92,9 @@ export default function AppointmentsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="p-10 text-center text-gray-400">No active appointments found.</td>
+                <td colSpan={4} className="p-10 text-center text-gray-400">
+                  No active appointments found for you.
+                </td>
               </tr>
             )}
           </tbody>
