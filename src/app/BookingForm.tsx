@@ -16,13 +16,14 @@ export default function BookingForm({ doctorId }: { doctorId: number }) {
     const formData = new FormData(form);
 
     const { error } = await supabase.from("appointments").insert([
-      {
-        doctor_id: doctorId,
-        patient_name: formData.get("name"),
-        patient_email: formData.get("email"),
-        appointment_date: formData.get("date"),
-      },
-    ]);
+  {
+    doctor_id: doctorId, // Links the booking to the current doctor
+    full_name: formData.get("name"), // Matches 'full_name' in your display code
+    email: formData.get("email"), // Matches 'email' in your display code
+    appointment_time: formData.get("date"), // Matches 'appointment_time' in your display code
+    status: 'active' // Sets the appointment as active so it shows on the dashboard
+  },
+]);
 
     setIsSubmitting(false); // Stop loading
 
