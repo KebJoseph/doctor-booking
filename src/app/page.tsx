@@ -10,9 +10,14 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchDoctors() {
-      const { data } = await supabase
+      // We removed .eq("verified", true) because the column might not exist
+      const { data, error } = await supabase
         .from('doctors')
         .select('*');
+      
+      if (error) {
+        console.error("Supabase Error:", error.message);
+      }
       
       if (data) setDoctors(data);
       setLoading(false);
@@ -28,17 +33,21 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-center text-white mb-12">Available Doctors</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {doctors.map((doctor) => (
-            <div key={doctor.id} className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-800 mb-1">{doctor.name}</h2>
-              <p className="text-blue-600 font-semibold mb-4">{doctor.specialty}</p>
-              
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-xs font-bold text-gray-400 uppercase mb-2">Book an Appointment</p>
-                <BookingForm doctorId={doctor.id} />
+          {doctors.length > 0 ? (
+            doctors.map((doctor) => (
+              <div key={doctor.id} className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-800 mb-1">{doctor.name}</h2>
+                <p className="text-blue-600 font-semibold mb-4">{doctor.specialty}</p>
+                
+                <div className="pt-4 border-t border-gray-100">
+                  <p className="text-xs font-bold text-gray-400 uppercase mb-2">Book an Appointment</p>
+                  <BookingForm doctorId={doctor.id} />
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="text-white text-center col-span-2">No doctors found in database.</div>
+          )}
         </div>
       </div>
     </main>
